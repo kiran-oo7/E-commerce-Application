@@ -1,4 +1,5 @@
 var express = require('express');
+const async = require('hbs/lib/async');
 const { render } = require('../app')
 const productHelpers = require('../helpers/product-helpers');
 var router = express.Router();
@@ -39,4 +40,21 @@ router.get('/delete-product/:id',(req,res)=>{
   })
 })
 
+router.get('/edit-product/:id',async (req,res)=>{
+  let product= await productHelpers.getProductDetails(req.params.id)
+  console.log(product);
+  res.render('admin/edit-product',{product})
+})
+
+router.post('/edit-product/:id',(req,res)=>{
+  console.log(req.params.id);
+  let id=req.params.id
+  productHelpers.updateProduct(req.params.id,req.body).then(()=>{
+    res.redirect('/admin')
+    if(req.files.Image){
+      let image=req.files.Image
+      image.mv('./public/product-images/'+id+'.jpg')
+    }
+  })
+})
 module.exports = router;
